@@ -28,4 +28,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: composeApp/build/compose/binaries/main/package/*.exe
+          path: /a/salute_jazz_chat_parser/salute_jazz_chat_parser/composeApp/build/compose/binaries/main/exe/*.exe
