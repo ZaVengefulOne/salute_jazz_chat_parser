@@ -21,7 +21,9 @@ import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
 fun MainScreen(
-    viewModel: AttendanceViewModel = viewModel()
+    viewModel: AttendanceViewModel = viewModel(),
+    isDarkTheme: Boolean = false,
+    onThemeToggle: () -> Unit = {}
 ) {
     val state = viewModel.studentAttendances
     val isLoading = viewModel.isLoading
@@ -57,6 +59,14 @@ fun MainScreen(
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Справка"
+                    )
+                }
+
+                Button(
+                    onClick = onThemeToggle
+                ) {
+                    Text(
+                        text = if (isDarkTheme) "Тёмная тема" else "Светлая тема",
                     )
                 }
 
