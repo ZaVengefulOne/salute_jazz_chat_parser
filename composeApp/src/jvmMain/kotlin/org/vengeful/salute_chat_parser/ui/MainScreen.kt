@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,6 +31,8 @@ fun MainScreen(
     val errorMessage = viewModel.errorMessage
 
     var showHelpDialog by remember { mutableStateOf(false) }
+    var showLogLoaded by remember { mutableStateOf(false) }
+    var showListLoaded by remember { mutableStateOf(false) }
 
     val presentStudents = state.filter { it.isPresent }
     val absentStudents = state.filter { !it.isPresent }
@@ -72,7 +75,11 @@ fun MainScreen(
 
                 if (state.isNotEmpty() || errorMessage != null) {
                     IconButton(
-                        onClick = { viewModel.clearAll() },
+                        onClick = {
+                            viewModel.clearAll()
+                            showLogLoaded = false
+                            showListLoaded = false
+                        },
                         enabled = !isLoading
                     ) {
                         Icon(
@@ -97,7 +104,10 @@ fun MainScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = { loadChatLogFile(viewModel) },
+                onClick = {
+                    loadChatLogFile(viewModel)
+                    showLogLoaded = true
+                },
                 modifier = Modifier.weight(1f),
                 enabled = !isLoading
             ) {
@@ -105,11 +115,25 @@ fun MainScreen(
             }
 
             Button(
-                onClick = { loadStudentListFile(viewModel) },
+                onClick = {
+                    loadStudentListFile(viewModel)
+                    showListLoaded = true
+                },
                 modifier = Modifier.weight(1f),
                 enabled = !isLoading
             ) {
                 Text("Загрузить список студентов (.txt/.xlsx)")
+            }
+        }
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+
+            if (showLogLoaded) {
+                Text("Лог загружен!", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            if (showListLoaded) {
+                Text("Список загружен!", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
 
@@ -328,7 +352,7 @@ private fun loadChatLogFile(viewModel: AttendanceViewModel) {
         fileFilter = FileNameExtensionFilter("Text files (.txt)", "txt")
         isMultiSelectionEnabled = false
     }
-    
+
     val result = fileChooser.showOpenDialog(null)
     if (result == JFileChooser.APPROVE_OPTION) {
         val file = fileChooser.selectedFile
@@ -346,7 +370,7 @@ private fun loadStudentListFile(viewModel: AttendanceViewModel) {
         fileFilter = FileNameExtensionFilter("Text and Excel files (.txt, .xlsx)", "txt", "xlsx")
         isMultiSelectionEnabled = false
     }
-    
+
     val result = fileChooser.showOpenDialog(null)
     if (result == JFileChooser.APPROVE_OPTION) {
         val file = fileChooser.selectedFile
@@ -356,6 +380,7 @@ private fun loadStudentListFile(viewModel: AttendanceViewModel) {
                     val content = file.readText(Charsets.UTF_8)
                     viewModel.loadStudentListTxt(content)
                 }
+
                 "xlsx" -> {
                     val content = file.readBytes()
                     viewModel.loadStudentListXlsx(content)
